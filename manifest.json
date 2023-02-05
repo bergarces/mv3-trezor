@@ -1,0 +1,13 @@
+{
+  "name": "Trezor MV3",
+  "manifest_version": 3,
+  "version": "1.0.0",
+  "background": {
+    "service_worker": "worker.js"
+  },
+  "action": {
+    "default_title": "Trezor",
+    "default_popup": "popup.html"
+  },
+  "permissions": ["offscreen"]
+}
