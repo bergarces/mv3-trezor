@@ -1,5 +1,4 @@
 async function createOffscreen() {
-  //console.log('AAAAAAAAAAA', chrome.offscreen)
   if (await chrome.offscreen.hasDocument()) return;
   await chrome.offscreen.createDocument({
     url: "offscreen.html",
@@ -23,12 +22,34 @@ async function createOffscreen() {
 
 chrome.runtime.onMessage.addListener(async (msg) => {
   switch (msg.type) {
-    case "start":
+    case "getAddressRequest":
       await createOffscreen();
       await chrome.runtime.sendMessage({
-        type: "start",
+        type: "getAddressRequest",
         offscreen: true,
       });
+      break;
+  }
+});
+
+chrome.runtime.onMessage.addListener(async (msg) => {
+  switch (msg.type) {
+    case "getAddressResponse":
+      console.log("GET ADDRESS RESPONSE WORKER", msg.payload);
+
+      chrome.storage.session.set({ trezorAddress: msg.payload.payload.address }).then(() => {
+        console.log("Value is set to " + msg.payload.payload.address);
+      });
+      
+      // chrome.storage.session.get(["key"]).then((result) => {
+      //   console.log("Value currently is " + result.key);
+      // });
+
+      // await chrome.runtime.sendMessage({
+      //   type: "getAddressResponsePopUp",
+      //   payload: msg.payload,
+      // });
+
       break;
   }
 });

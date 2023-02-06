@@ -9,5 +9,5 @@
     "default_title": "Trezor",
     "default_popup": "popup.html"
   },
-  "permissions": ["offscreen"]
+  "permissions": ["storage", "offscreen"]
 }
