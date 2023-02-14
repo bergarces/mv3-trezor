@@ -2,54 +2,72 @@ async function createOffscreen() {
   if (await chrome.offscreen.hasDocument()) return;
   await chrome.offscreen.createDocument({
     url: "offscreen.html",
-
-    /* valid reasons: 
-    AUDIO_PLAYBACK, 
-    BLOBS, 
-    CLIPBOARD, 
-    DISPLAY_MEDIA, 
-    DOM_PARSER, 
-    DOM_SCRAPING, 
-    IFRAME_SCRIPTING,
-    TESTING, 
-    USER_MEDIA, 
-    WEB_RTC.
-    */
     reasons: ["IFRAME_SCRIPTING"],
     justification: "Load Trezor",
   });
 }
 
-chrome.runtime.onMessage.addListener(async (msg) => {
-  switch (msg.type) {
-    case "getAddressRequest":
-      await createOffscreen();
-      await chrome.runtime.sendMessage({
-        type: "getAddressRequest",
-        offscreen: true,
-      });
-      break;
-  }
-});
+createOffscreen().then(() => {
+  chrome.runtime.onMessage.addListener((msg) => {
+    switch (msg.type) {
+      case "TZInit":
+        chrome.runtime.sendMessage(
+          {
+            type: "TZInit",
+            offscreen: true,
+            params: {
+              lazyLoad: true,
+              manifest: {
+                email: "developer@xyz.com",
+                appUrl: "http://your.application.com",
+              },
+            },
+          },
+          () => {
+            chrome.storage.session.set({ trezorInit: true });
+          }
+        );
 
-chrome.runtime.onMessage.addListener(async (msg) => {
-  switch (msg.type) {
-    case "getAddressResponse":
-      console.log("GET ADDRESS RESPONSE WORKER", msg.payload);
+        break;
 
-      chrome.storage.session.set({ trezorAddress: msg.payload.payload.address }).then(() => {
-        console.log("Value is set to " + msg.payload.payload.address);
-      });
-      
-      // chrome.storage.session.get(["key"]).then((result) => {
-      //   console.log("Value currently is " + result.key);
-      // });
+      case "TZGetAddress":
+        chrome.runtime.sendMessage(
+          {
+            type: "TZGetAddress",
+            offscreen: true,
+            params: {
+              path: "m/44'/60'/0'/0/0",
+              showOnTrezor: false,
+            },
+          },
+          (response) => {
+            chrome.storage.session.set({
+              trezorAddress: response.payload.address,
+            });
+          }
+        );
 
-      // await chrome.runtime.sendMessage({
-      //   type: "getAddressResponsePopUp",
-      //   payload: msg.payload,
-      // });
+        break;
 
-      break;
-  }
+      case "TZSignMessage":
+        chrome.runtime.sendMessage(
+          {
+            type: "TZSignMessage",
+            offscreen: true,
+            params: {
+              path: "m/44'/60'/0'/0/0",
+              message: "FFFFFFFF",
+              hex: true,
+            },
+          },
+          (response) => {
+            chrome.storage.session.set({
+              trezorSignature: response.payload.signature,
+            });
+          }
+        );
+
+        break;
+    }
+  });
 });

@@ -1,31 +1,38 @@
-TrezorConnect.init({
-  lazyLoad: true, // this param will prevent iframe injection until TrezorConnect.method will be called
-  manifest: {
-    email: "developer@xyz.com",
-    appUrl: "http://your.application.com",
-  },
-});
-
-chrome.runtime.onMessage.addListener(async (msg) => {
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (!msg.offscreen) {
     return;
   }
   switch (msg.type) {
-    case "getAddressRequest":
-      console.log("OFFSCREEN GET ADDRESS");
-      
-      const result = await TrezorConnect.ethereumGetAddress({
-        path: "m/44'/60'/0'/0/0",
-        showOnTrezor: false,
+    case "TZInit":
+      console.log("OFFSCREEN INIT", msg.params);
+  
+      TrezorConnect.init(msg.params).then(() => {
+        console.log("OFFSCREEN INIT RESPONSE");
+        sendResponse();
       });
-    
-      console.log("TREZOR RESULT", result);
-    
-      await chrome.runtime.sendMessage({
-        type: "getAddressResponse",
-        payload: result,
+
+      break;
+
+    case "TZGetAddress":
+      console.log("OFFSCREEN GET ADDRESS", msg.params);
+
+      TrezorConnect.ethereumGetAddress(msg.params).then((result) => {
+        console.log("OFFSCREEN GET ADDRESS RESPONSE", result);
+        sendResponse(result);
+      });
+
+      break;
+
+    case "TZSignMessage":
+      console.log("OFFSCREEN SIGN MESSAGE", msg.params);
+
+      TrezorConnect.ethereumSignMessage(msg.params).then((result) => {
+        console.log("OFFSCREEN SIGN MESSAGE RESPONSE", result);
+        sendResponse(result);
       });
 
       break;
   }
+
+  return true;
 });

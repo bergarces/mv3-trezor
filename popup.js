@@ -1,21 +1,29 @@
-document.querySelector(".start").addEventListener("click", () => {
-  chrome.runtime.sendMessage({
-    type: "getAddressRequest",
+document.querySelector(".init-btn").addEventListener("click", () => {
+  chrome.runtime.sendMessage({ type: "TZInit" });
+});
+
+document.querySelector(".address-btn").addEventListener("click", () => {
+  chrome.runtime.sendMessage({ type: "TZGetAddress" });
+});
+
+document.querySelector(".sign-btn").addEventListener("click", () => {
+  chrome.runtime.sendMessage({ type: "TZSignMessage" });
+});
+
+setInterval(() => {
+  chrome.storage.session.get(["trezorInit"]).then((result) => {
+    document.querySelector(".init-label").innerHTML = result.trezorInit
+      ? "Initialised"
+      : "Not initialised";
   });
-});
 
-chrome.runtime.onMessage.addListener(async (msg) => {
-  switch (msg.type) {
-    case "getAddressResponse":
-      console.log("GET ADDRESS RESPONSE POPUP", msg.payload);
+  chrome.storage.session.get(["trezorAddress"]).then((result) => {
+    document.querySelector(".address-label").innerHTML =
+      result.trezorAddress || "No Address";
+  });
 
-      break;
-  }
-});
-
-console.log("AAAAAAAAAAAAAA", chrome.storage);
-chrome.storage.session.get(["trezorAddress"]).then((result) => {
-  console.log("Value currently is ", result.trezorAddress);
-  document.querySelector(".output").innerHTML =
-    result.trezorAddress || "NO ADDRESS";
-});
+  chrome.storage.session.get(["trezorSignature"]).then((result) => {
+    document.querySelector(".sign-label").innerHTML =
+      result.trezorSignature || "No Signature";
+  });
+}, 1000 / 2);

@@ -3,10 +3,21 @@
     <title>Popup</title>
   </head>
   <body style="width: 300px; height: 500px;">
-    <button class="start">Get Address</button>
-    <br />
-    <br />
-    <div class="output"></div>
+    <div style="padding: 20px;">
+      <div class="init-label"></div>
+      <br />
+      <button class="init-btn">Initialise TrezorConnect</button>
+    </div>
+    <div style="padding: 20px;">
+      <div class="address-label"></div>
+      <br />
+      <button class="address-btn">Get Address</button>
+    </div>
+    <div style="padding: 20px;">
+      <div class="sign-label">No Message Signed</div>
+      <br />
+      <button class="sign-btn">Sign Message</button>
+    </div>
     <script src="popup.js"></script>
   </body>
 </html>
