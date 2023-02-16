@@ -13,7 +13,7 @@ createOffscreen().then(() => {
       case "TZInit":
         chrome.runtime.sendMessage(
           {
-            offscreen: true,
+            offscreenIframe: true,
             target: 'trezor',
             topic: "init",
             params: {
@@ -34,7 +34,7 @@ createOffscreen().then(() => {
       case "TZGetAddress":
         chrome.runtime.sendMessage(
           {
-            offscreen: true,
+            offscreenIframe: true,
             target: "trezor",
             topic: "get-address",
             params: {
@@ -54,7 +54,7 @@ createOffscreen().then(() => {
       case "TZSignMessage":
         chrome.runtime.sendMessage(
           {
-            offscreen: true,
+            offscreenIframe: true,
             target: "trezor",
             topic: "sign-message",
             params: {
