@@ -2,37 +2,71 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (!msg.offscreen) {
     return;
   }
-  switch (msg.type) {
-    case "TZInit":
-      console.log("OFFSCREEN INIT", msg.params);
-  
-      TrezorConnect.init(msg.params).then(() => {
-        console.log("OFFSCREEN INIT RESPONSE");
-        sendResponse();
-      });
 
+  switch (msg.target) {
+    case "trezor":
+      trezorApi(msg, sendResponse);
       break;
 
-    case "TZGetAddress":
-      console.log("OFFSCREEN GET ADDRESS", msg.params);
-
-      TrezorConnect.ethereumGetAddress(msg.params).then((result) => {
-        console.log("OFFSCREEN GET ADDRESS RESPONSE", result);
-        sendResponse(result);
-      });
-
+    case "lattice":
+      console.error("LATTICE NOT SUPPORTED");
       break;
 
-    case "TZSignMessage":
-      console.log("OFFSCREEN SIGN MESSAGE", msg.params);
-
-      TrezorConnect.ethereumSignMessage(msg.params).then((result) => {
-        console.log("OFFSCREEN SIGN MESSAGE RESPONSE", result);
-        sendResponse(result);
-      });
-
-      break;
+    default:
+      console.error("NOT SUPPORTED", msg.target);
   }
 
   return true;
 });
+
+function trezorApi(msg, sendResponse) {
+  switch (msg.topic) {
+    case "init":
+      console.log("TREZOR OFFSCREEN INIT", msg.params);
+
+      chrome.runtime.sendMessage(
+        {
+          ...msg,
+          offscreenIframe: true,
+        },
+        () => {
+          console.log("TREZOR OFFSCREEN INIT RESPONSE");
+          sendResponse();
+        }
+      );
+
+      break;
+
+    case "get-address":
+      console.log("TREZOR OFFSCREEN GET ADDRESS", msg.params);
+
+      chrome.runtime.sendMessage(
+        {
+          ...msg,
+          offscreenIframe: true,
+        },
+        (response) => {
+          console.log("TREZOR OFFSCREEN GET ADDRESS RESPONSE", response);
+          sendResponse(response);
+        }
+      );
+
+      break;
+
+    case "sign-message":
+      console.log("TREZOR OFFSCREEN SIGN MESSAGE", msg.params);
+
+      chrome.runtime.sendMessage(
+        {
+          ...msg,
+          offscreenIframe: true,
+        },
+        (response) => {
+          console.log("TREZOR OFFSCREEN SIGN MESSAGE RESPONSE", response);
+          sendResponse(response);
+        }
+      );
+
+      break;
+  }
+}

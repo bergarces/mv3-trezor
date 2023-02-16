@@ -13,8 +13,9 @@ createOffscreen().then(() => {
       case "TZInit":
         chrome.runtime.sendMessage(
           {
-            type: "TZInit",
             offscreen: true,
+            target: 'trezor',
+            topic: "init",
             params: {
               lazyLoad: true,
               manifest: {
@@ -33,8 +34,9 @@ createOffscreen().then(() => {
       case "TZGetAddress":
         chrome.runtime.sendMessage(
           {
-            type: "TZGetAddress",
             offscreen: true,
+            target: "trezor",
+            topic: "get-address",
             params: {
               path: "m/44'/60'/0'/0/0",
               showOnTrezor: false,
@@ -52,8 +54,9 @@ createOffscreen().then(() => {
       case "TZSignMessage":
         chrome.runtime.sendMessage(
           {
-            type: "TZSignMessage",
             offscreen: true,
+            target: "trezor",
+            topic: "sign-message",
             params: {
               path: "m/44'/60'/0'/0/0",
               message: "FFFFFFFF",
